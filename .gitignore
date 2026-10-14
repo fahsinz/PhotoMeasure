@@ -6,3 +6,15 @@ private_photos/
 evaluation/results/*
 !evaluation/results/.gitkeep
 .worktrees/
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+marker.svg
+evaluation/*.csv
+!evaluation/manifest_example.csv
+evaluation/annotations/*
