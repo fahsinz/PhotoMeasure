@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+private_photos/
+evaluation/results/*
+!evaluation/results/.gitkeep
+.worktrees/
