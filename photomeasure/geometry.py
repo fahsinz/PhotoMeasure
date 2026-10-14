@@ -1,6 +1,7 @@
 """Double precision planar measurement; millimetres are the plane coordinate unit."""
 from dataclasses import dataclass
 import numpy as np
+from numpy.typing import ArrayLike
 
 
 class GeometryError(ValueError):
@@ -29,7 +30,8 @@ def _cross(a, b):
     return a[..., 0] * b[..., 1] - a[..., 1] * b[..., 0]
 
 
-def validate_quad(points, image_size=None, min_area=1.0) -> np.ndarray:
+def validate_quad(points: ArrayLike, image_size: tuple[int, int] | None = None,
+                  min_area: float = 1.0) -> np.ndarray:
     p = _points(points, 4).copy()
     if not np.isfinite(min_area) or min_area < 0:
         raise GeometryError("Minimum polygon area must be finite and nonnegative.")
@@ -71,7 +73,7 @@ def _normalize(p):
     return (p - center) * scale, t
 
 
-def compute_homography(reference, reference_size_mm) -> np.ndarray:
+def compute_homography(reference: ArrayLike, reference_size_mm: float) -> np.ndarray:
     try:
         side = float(reference_size_mm)
     except (TypeError, ValueError) as exc:
@@ -99,7 +101,7 @@ def compute_homography(reference, reference_size_mm) -> np.ndarray:
     return h
 
 
-def transform_points(points, homography) -> np.ndarray:
+def transform_points(points: ArrayLike, homography: ArrayLike) -> np.ndarray:
     p = _points(points)
     h = np.asarray(homography, dtype=np.float64)
     if h.shape != (3, 3) or not np.isfinite(h).all() or np.max(np.abs(h)) == 0:
@@ -125,7 +127,9 @@ def transform_points(points, homography) -> np.ndarray:
     return result
 
 
-def measure(reference, target, reference_size_mm, image_size=None, config=None) -> dict:
+def measure(reference: ArrayLike, target: ArrayLike, reference_size_mm: float,
+            image_size: tuple[int, int] | None = None,
+            config: GeometryConfig | None = None) -> dict:
     config = config or GeometryConfig()
     thresholds = [config.min_reference_area_px, config.small_edge_px, config.angle_warning_deg, config.opposite_warning_ratio]
     if not np.isfinite(thresholds).all() or min(thresholds) < 0:

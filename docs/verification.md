@@ -37,3 +37,19 @@ evaluation. Clicking raster edges introduces selection error; the noiseless
 Automated state tests cover the pure state helper; browser interaction and visual
 alignment still require manual acceptance. A server health check alone cannot
 establish that these human workflows were completed.
+
+## Assisted detection smoke tests
+
+Detector checks construct an actual DICT_4X4_50 marker using OpenCV's generator,
+warp the entire reference/target plane independently, recover its marker ID and
+measure the manually supplied warped target. The 1.5 mm smoke tolerance accounts
+for raster corner localization and is separate from the 0.1 mm exact geometry
+requirement. Additional tests cover marker rotations, multiple-marker preservation,
+blank-image actionable failure, SVG physical black-square extent and quiet zone,
+invalid contour settings, reference and boundary exclusion, and relative-area
+behavior at two analysis resolutions. No detection rate on real photos is claimed.
+
+Manual assisted acceptance: detect a printed marker, explicitly choose among
+multiple markers, select a suggested target, correct one corner, confirm and
+measure. Blank/low-contrast photos must retain manual fallback. Switching modes,
+marker choice or contour settings after measuring must clear results/downloads.

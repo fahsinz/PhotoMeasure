@@ -14,6 +14,10 @@ class SelectionState:
     record: dict | None = None
     revision: int = 0
     settings_key: Any = None
+    marker_id: int | None = None
+    reference_detection: dict | None = None
+    target_detection: dict | None = None
+    target_candidate_applied: bool = False
 
     def invalidate(self) -> None:
         self.result = None
@@ -32,6 +36,10 @@ class SelectionState:
         self.target = []
         self.reference_confirmed = False
         self.target_confirmed = False
+        self.marker_id = None
+        self.reference_detection = None
+        self.target_detection = None
+        self.target_candidate_applied = False
         self.invalidate()
 
     def set_points(self, kind: str, points: list) -> None:
@@ -39,6 +47,10 @@ class SelectionState:
             raise ValueError("Unknown selection kind")
         setattr(self, kind, [[float(x), float(y)] for x, y in points])
         setattr(self, kind + "_confirmed", False)
+        if kind == "reference":
+            self.target_detection = None
+            self.target_candidate_applied = False
+            self.target_confirmed = False
         self.invalidate()
 
     def set_settings(self, key: Any) -> bool:
@@ -47,5 +59,8 @@ class SelectionState:
         self.settings_key = key
         self.reference_confirmed = False
         self.target_confirmed = False
+        self.reference_detection = None
+        self.target_detection = None
+        self.target_candidate_applied = False
         self.invalidate()
         return True

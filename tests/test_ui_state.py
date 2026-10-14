@@ -48,6 +48,15 @@ def test_reference_size_change_clears_stale_measurement():
     assert not state.reference_confirmed and not state.target_confirmed
 
 
+@pytest.mark.parametrize('settings', [('aruco', 50., 0), ('aruco', 50., 1),
+                                     ('assisted', 50., 80, 180)])
+def test_detection_mode_marker_and_settings_changes_clear_results(settings):
+    state = measured_state()
+    assert state.set_settings(settings)
+    assert state.result is None and state.record is None
+    assert not state.reference_confirmed and not state.target_confirmed
+
+
 def test_reset_clears_downloads():
     state = measured_state()
     state.reset()

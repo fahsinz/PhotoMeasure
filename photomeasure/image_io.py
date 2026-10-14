@@ -5,6 +5,7 @@ from io import BytesIO
 import warnings
 
 import numpy as np
+from numpy.typing import ArrayLike
 from PIL import Image, ImageOps, UnidentifiedImageError
 
 
@@ -61,15 +62,16 @@ def _points(points) -> np.ndarray:
     return array
 
 
-def original_to_analysis(points, image: ImageData) -> np.ndarray:
+def original_to_analysis(points: ArrayLike, image: ImageData) -> np.ndarray:
     return _points(points) * [image.scale_x, image.scale_y]
 
 
-def analysis_to_original(points, image: ImageData) -> np.ndarray:
+def analysis_to_original(points: ArrayLike, image: ImageData) -> np.ndarray:
     return _points(points) / [image.scale_x, image.scale_y]
 
 
-def preview_to_analysis(points, preview_size, analysis_size) -> np.ndarray:
+def preview_to_analysis(points: ArrayLike, preview_size: tuple[float, float],
+                        analysis_size: tuple[int, int]) -> np.ndarray:
     preview = np.asarray(preview_size, dtype=np.float64)
     analysis = np.asarray(analysis_size, dtype=np.float64)
     if preview.shape != (2,) or analysis.shape != (2,) or not np.isfinite([preview, analysis]).all() or (preview <= 0).any() or (analysis <= 0).any():
