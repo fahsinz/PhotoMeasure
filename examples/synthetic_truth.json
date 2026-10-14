@@ -1,0 +1,23 @@
+{
+  "data_kind": "synthetic",
+  "short_side_mm": 80.0,
+  "long_side_mm": 120.0,
+  "plane_to_image": [
+    [
+      3.4,
+      0.55,
+      90.0
+    ],
+    [
+      0.2,
+      3.1,
+      100.0
+    ],
+    [
+      0.0017,
+      0.0008,
+      1.0
+    ]
+  ],
+  "note": "Noise-free coordinates. Raster edges are approximate."
+}

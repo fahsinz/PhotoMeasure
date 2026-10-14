@@ -1,0 +1,21 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+body{margin:0;font:14px sans-serif;color:#333}canvas{display:block;width:100%;height:auto;touch-action:none;cursor:crosshair}p{margin:5px 0}
+</style></head><body><canvas id="canvas"></canvas><p id="hint"></p><script>
+// Minimal local implementation of the official Streamlit V1 postMessage protocol.
+const canvas=document.getElementById('canvas'), ctx=canvas.getContext('2d'), img=new Image();
+let args=null, points={reference:[],target:[]}, drag=-1, seq=0;
+function send(type, rest){window.parent.postMessage({isStreamlitMessage:true,type,...rest},'*')}
+function height(){send('streamlit:setFrameHeight',{height:document.body.scrollHeight})}
+function draw(){if(!args||!img.complete)return;ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);
+for(const kind of ['reference','target']){const ps=points[kind];ctx.strokeStyle=kind==='reference'?'#008c99':'#d75500';ctx.fillStyle=ctx.strokeStyle;ctx.lineWidth=Math.max(2,canvas.width/350);ctx.font=`${Math.max(16,canvas.width/40)}px sans-serif`;
+if(ps.length){ctx.beginPath();ps.forEach((p,i)=>i?ctx.lineTo(...p):ctx.moveTo(...p));if(ps.length===4)ctx.closePath();ctx.stroke();ps.forEach((p,i)=>{ctx.beginPath();ctx.arc(...p,Math.max(5,canvas.width/120),0,Math.PI*2);ctx.fill();ctx.fillText(i+1,p[0]+10,p[1]-10)})}}
+height()}
+function xy(e){const r=canvas.getBoundingClientRect();return [Math.max(0,Math.min(args.width-1,(e.clientX-r.left)*args.width/r.width)),Math.max(0,Math.min(args.height-1,(e.clientY-r.top)*args.height/r.height))]}
+function emit(){send('streamlit:setComponentValue',{dataType:'json',value:{revision:args.revision,seq:++seq,kind:args.active,points:points[args.active]}})}
+canvas.onpointerdown=e=>{if(!args)return;const p=xy(e),ps=points[args.active],r=canvas.getBoundingClientRect();drag=ps.findIndex(v=>Math.hypot((v[0]-p[0])*r.width/args.width,(v[1]-p[1])*r.height/args.height)<18);if(drag<0&&ps.length<4){ps.push(p);drag=ps.length-1}canvas.setPointerCapture(e.pointerId);draw()};
+canvas.onpointermove=e=>{if(drag>=0){points[args.active][drag]=xy(e);draw()}};
+canvas.onpointerup=e=>{if(drag>=0){points[args.active][drag]=xy(e);drag=-1;emit();draw()}};
+canvas.onpointercancel=()=>{drag=-1};
+window.addEventListener('message',e=>{if(e.source!==window.parent||e.data.type!=='streamlit:render')return;args=e.data.args;points={reference:args.reference.map(p=>p.slice()),target:args.target.map(p=>p.slice())};canvas.width=args.width;canvas.height=args.height;document.getElementById('hint').textContent=`Editing ${args.active}: click corners around the perimeter. Drag a numbered corner to correct it.`;if(img.src!==args.image_url)img.src=args.image_url;else draw()});
+img.onload=draw;new ResizeObserver(height).observe(canvas);send('streamlit:componentReady',{apiVersion:1});
+</script></body></html>

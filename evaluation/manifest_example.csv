@@ -1,0 +1,2 @@
+image_path,object_id,actual_short_mm,actual_long_mm,lighting,angle_category,reference_size_mm,annotation_path,split,method,reference_without_correction,target_without_correction,manual_fallback
+PLACEHOLDER_photo.jpg,PLACEHOLDER_object,REPLACE_WITH_RULER_MM,REPLACE_WITH_RULER_MM,PLACEHOLDER_lighting,PLACEHOLDER_angle,REPLACE_WITH_ACTUAL_REFERENCE_MM,PLACEHOLDER_annotation.json,evaluation,manual,,,
