@@ -25,6 +25,19 @@ def png_bytes(image):
     return buffer.getvalue()
 
 
+def candidate_changed(kind):
+    selection = st.session_state.selection
+    setattr(selection, kind + "_confirmed", False)
+    if kind == "reference":
+        selection.marker_id = None
+        selection.target_confirmed = False
+        selection.target_detection = None
+        selection.target_candidate_applied = False
+    else:
+        selection.target_candidate_applied = False
+    selection.invalidate()
+
+
 @st.cache_data(show_spinner=False, max_entries=2)
 def decoded_image(data, name, long_edge):
     return load_image(data, name, max_long_edge=long_edge)
@@ -89,21 +102,23 @@ if previous_settings is not None and len(previous_settings) > 3 and previous_set
 if previous_settings is not None and len(previous_settings) > 4 and previous_settings[4] != target_mode:
     state.set_points("target", [])
 if reference_mode == "aruco":
+    marker_choice_key = f"marker-choice-{state.image_key}"
     st.caption("DICT_4X4_50 · default print ID 0. Detected outer black-square corners need your explicit selection and confirmation.")
     with st.expander("Print a square reference marker"):
         print_id = st.number_input("Marker ID to print", min_value=0, max_value=49, value=0)
         st.write("The SVG black square is 50 mm per side, with a separate white quiet zone. Print at actual size without fit-to-page. Measure the black-square side with a ruler and enter the actual size above.")
         st.download_button("Download printable SVG", marker_svg(side_mm=50., marker_id=int(print_id)).encode("utf-8"), f"aruco-{print_id}-50mm.svg", "image/svg+xml")
     if st.button("Detect ArUco references"):
+        state.set_points("reference", [])
+        state.marker_id = None
         state.reference_detection = detect_markers(image.analysis_rgb)
-        state.reference_confirmed = False
-        state.invalidate()
+        st.session_state[marker_choice_key] = None
     if state.reference_detection is not None:
         found = state.reference_detection
         st.caption(found["status"])
         markers = found["markers"]
         if markers:
-            chosen = st.selectbox("Choose the reference marker", range(len(markers)), index=None, placeholder="Select a detected marker explicitly", format_func=lambda i: f"Candidate {i+1}: marker ID {markers[i]['marker_id']}", key=f"marker-choice-{state.image_key}-{state.revision}")
+            chosen = st.selectbox("Choose the reference marker", range(len(markers)), index=None, placeholder="Select a detected marker explicitly", format_func=lambda i: f"Candidate {i+1}: marker ID {markers[i]['marker_id']}", key=marker_choice_key, on_change=candidate_changed, args=("reference",))
             if chosen is not None:
                 marker = markers[chosen]
                 st.image(annotate_image(image, marker["corners_analysis_px"], []), caption=f"Candidate marker ID {marker['marker_id']}", width="stretch")
@@ -114,13 +129,15 @@ if reference_mode == "aruco":
         else:
             st.warning("No valid reference detected. Select Manual mode to mark a square reference explicitly, or try a clearer photograph.")
 if target_mode == "assisted":
+    target_choice_key = f"target-choice-{state.image_key}"
     st.caption("Suggestions are contours, not object recognition. Choose a candidate, correct its corners, and confirm it.")
     if st.button("Find target suggestions", disabled=not state.reference_confirmed):
         try:
             h = compute_homography(state.reference, reference_size)
+            state.set_points("target", [])
+            state.target_candidate_applied = False
             state.target_detection = suggest_targets(image.analysis_rgb, reference=state.reference, homography=h, config=detection_config)
-            state.target_confirmed = False
-            state.invalidate()
+            st.session_state[target_choice_key] = None
         except ValueError as exc:
             st.error(str(exc))
     if state.target_detection is not None:
@@ -128,7 +145,7 @@ if target_mode == "assisted":
         st.caption(suggestions["status"])
         candidates = suggestions["candidates"]
         if candidates:
-            chosen = st.selectbox("Choose the target rectangle", range(len(candidates)), index=None, placeholder="Select a candidate explicitly", format_func=lambda i: f"Candidate {i+1} · score {candidates[i]['score']:.3f}", key=f"target-choice-{state.image_key}-{state.revision}")
+            chosen = st.selectbox("Choose the target rectangle", range(len(candidates)), index=None, placeholder="Select a candidate explicitly", format_func=lambda i: f"Candidate {i+1} · score {candidates[i]['score']:.3f}", key=target_choice_key, on_change=candidate_changed, args=("target",))
             if chosen is not None:
                 candidate = candidates[chosen]
                 st.image(annotate_image(image, state.reference, candidate["corners_analysis_px"]), caption="Suggested target outline", width="stretch")

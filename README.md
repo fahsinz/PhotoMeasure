@@ -32,13 +32,15 @@ Generate the clearly labeled synthetic example:
 
 ```powershell
 .venv\Scripts\python scripts/generate_synthetic.py
+.venv\Scripts\python scripts/run_evaluation.py --manifest examples/synthetic_manifest.csv --output evaluation/results/synthetic_smoke --data-kind synthetic --hardware "Your laptop description"
 ```
 
 1. Launch the app, upload the generated PNG, and leave the analysis edge at 2000.
 2. Select four reference corners sequentially around its perimeter and enter
-   its known synthetic side. Confirm the reference; this example is not a photo.
+   its known 50 mm synthetic side. Confirm the reference; this example is not a photo.
 3. Select and confirm four target corners. Drag a point to correct it or use
-   numeric editing; try undo/reset. Click Measure.
+   numeric editing; try undo/reset. Click Measure. Exact saved synthetic corners
+   give 8.0 × 12.0 cm; raster clicking may differ.
 4. Inspect the short/long estimates in cm, warnings, annotated image, and
    rectified scale bar. Download PNG, full JSON, CSV and reusable annotation.
 5. Change a corner or upload a different image. Results must clear and require
@@ -88,6 +90,7 @@ averaged and sorted into short and long. A global pixel scale is inadequate
 for tilted photos. Read the beginner-friendly [measurement notes](docs/measurement_method.md),
 [architecture](docs/architecture.md), [interfaces/schema](docs/interfaces.md),
 [limitations](docs/limitations.md), and [verification record](docs/verification.md).
+The [milestone handoff](docs/milestones.md) lists completed checks and manual follow-up.
 
 Lens distortion, noncoplanar objects, thick/curved objects, tiny or distant
 references, blur and wide-angle lenses can cause error. Prefer the main phone

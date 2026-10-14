@@ -1,0 +1,2 @@
+image_path,object_id,actual_short_mm,actual_long_mm,lighting,angle_category,reference_size_mm,annotation_path,split,method,reference_without_correction,target_without_correction,manual_fallback
+synthetic_perspective.png,SYNTHETIC_rectangle,80,120,SYNTHETIC_uniform,SYNTHETIC_projective,50,synthetic_annotation.json,evaluation,manual,,,

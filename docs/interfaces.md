@@ -80,6 +80,13 @@ Exclude reference overlap/boundary, rank by area/quality; no silent choice.
 Manifest columns image_path,object_id,actual_short_mm,actual_long_mm,lighting,
 angle_category,reference_size_mm,annotation_path,split,method,
 reference_without_correction,target_without_correction,manual_fallback.
+Optional reference_attempted,target_attempted booleans refine assisted denominators.
 Paths relative to manifest; annotations checked against image hash and analysis size.
 Failed rows retained with reasons. Missing detection evidence remains undefined.
 Metrics and timing definitions follow specification. Synthetic separately labeled.
+evaluation.run_evaluation(manifest_path: Path, output_dir: Path,
+hardware: str='unspecified', data_kind: str='real') -> dict aggregate summary.
+evaluation.summarize(rows: list[dict]) -> dict. Successful rows flatten full records
+with manifest context/status='success'; failed rows retain status='failure' and
+failure_reason. Warm up each method once. Missing workflow evidence yields null
+rates with explicit unknown counts; processing reruns do not prove detection success.

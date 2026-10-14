@@ -32,6 +32,15 @@ more than 10 degrees from 90 or opposite sides differing by more than 10%
 trigger configurable heuristic warnings. The implementation documents further
 numerical guards in geometry.py. Warnings are not calibrated confidence scores.
 
+Numerical guards: corners must be distinct beyond 1e-8 pixels, adjacent edge
+cross-product sine must be at least 1e-4, the normalized DLT system's smallest
+singular value must exceed 1e-10 times its largest, and normalized homography
+condition must not exceed 1e10. Projection denominators must exceed 1e-10 times
+the sum of absolute homogeneous denominator terms. Reference and target must
+remain on the same side of the projective horizon. Physical target edges at or
+below 1e-9 mm are rejected. These numerical safeguards are operating choices,
+not empirical accuracy guarantees.
+
 The reference fits its own four correspondences exactly by construction. Its
 reprojection residual cannot prove target accuracy. Coplanarity and rectangularity
 are capture assumptions; a single photograph cannot reliably verify them.

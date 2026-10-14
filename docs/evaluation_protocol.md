@@ -26,9 +26,22 @@ The runner retains per-row failures and excludes them only from error aggregates
 Short and long sides are reported separately with signed, absolute and percentage
 errors, mean/median absolute error, worst error and success counts. Detection,
 assisted completion and manual fallback rates have explicit denominators.
-Latency excludes upload, rendering and human work: after one warm-up it times
+Latency excludes upload, rendering and human work: after one warm-up per method it times
 geometry and, for assisted rows, reference detection and target suggestion.
 Report median, 95th percentile, sample count, image resolution and hardware.
+Latency aggregates cover successful processing rows; failures remain in their
+own report. Batch latency reruns algorithms on the saved confirmed corners,
+while detector success/correction evidence comes from your observed workflow.
+It is never inferred simply from a candidate count. Optional reference_attempted
+and target_attempted columns can exclude an unattempted detector from its
+denominator; assisted rows otherwise assume both were attempted. Boolean columns
+accept true/false, yes/no or 1/0. Blank evidence makes the corresponding rate
+undefined and records its unknown count. Assisted completion means a successful
+measurement without manual fallback; fallback rate is reported independently.
+
+Summary.json separates methods and splits, flags objects appearing in both
+development/evaluation, and reports whether evaluation processing settings match.
+Resolve mixed settings or split overlap before publishing a comparison.
 
 Figures group dimension error by angle and lighting. Failure reports list reasons
 and paths; sharing representative images requires the owner's approval. Do not

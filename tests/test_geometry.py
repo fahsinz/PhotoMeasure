@@ -76,3 +76,14 @@ def test_reference_homography_is_finite_and_invertible(perspective_scene):
     matrix = compute_homography(ref, 50.)
     assert np.isfinite(matrix).all()
     assert abs(np.linalg.det(matrix)) > 0
+
+
+def test_target_entirely_across_projective_horizon_is_rejected():
+    matrix = np.array([[1., 0., 20.], [0., 1., 100.], [.01, 0., 1.]])
+    plane_ref = np.array([[0., 0.], [50., 0.], [50., 50.], [0., 50.]])
+    homogeneous = np.column_stack((plane_ref, np.ones(4))) @ matrix.T
+    reference = homogeneous[:, :2] / homogeneous[:, 2, None]
+    target = [[150., 10.], [200., 10.], [200., 50.], [150., 50.]]
+    # All target denominators share a sign, but it differs from the reference.
+    with pytest.raises(GeometryError, match='.+'):
+        measure(reference, target, 50., (500, 500))
